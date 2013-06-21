@@ -1,3 +1,7 @@
+- Added possibility to Open Containing folder in the filemanager (ctrl + alt + e)
+
+Original Project by Will Bond with contributions by Felix Krull
+
 = Sublime Terminal
 
 Key-bindings and menu entries for launching a terminal at a given file or folder

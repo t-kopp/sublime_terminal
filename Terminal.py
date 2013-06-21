@@ -12,11 +12,13 @@ if os.name == 'nt':
 class NotFoundError(Exception):
     pass
 
+
 def get_platform_setting(settings, key):
     value = settings.get('%s_%s' % (key, sublime.platform()))
     if not value:
         value = settings.get(key)
     return value
+
 
 class TerminalSelector():
     default = None
@@ -43,7 +45,8 @@ class TerminalSelector():
         default = None
 
         if os.name == 'nt':
-            if os.path.exists(os.environ['SYSTEMROOT'] +
+            if os.path.exists(
+                    os.environ['SYSTEMROOT'] +
                     '\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'):
                 # This mimics the default powershell colors since calling
                 # subprocess.POpen() ends up acting like launching powershell
@@ -54,16 +57,16 @@ class TerminalSelector():
                     'WindowsPowerShell_v1.0_powershell.exe'
                 try:
                     key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER,
-                        key_string)
+                                          key_string)
                 except (WindowsError):
                     key = _winreg.CreateKey(_winreg.HKEY_CURRENT_USER,
-                        key_string)
+                                            key_string)
                     _winreg.SetValueEx(key, 'ColorTable05', 0,
-                        _winreg.REG_DWORD, 5645313)
+                                       _winreg.REG_DWORD, 5645313)
                     _winreg.SetValueEx(key, 'ColorTable06', 0,
-                        _winreg.REG_DWORD, 15789550)
+                                       _winreg.REG_DWORD, 15789550)
                 default = os.path.join(package_dir, 'PS.bat')
-            else :
+            else:
                 default = os.environ['SYSTEMROOT'] + '\\System32\\cmd.exe'
 
         elif sys.platform == 'darwin':
@@ -105,18 +108,19 @@ class TerminalCommand():
         try:
             if not dir:
                 raise NotFoundError('The file open in the selected view has ' +
-                    'not yet been saved')
+                                    'not yet been saved')
             for k, v in enumerate(parameters):
                 parameters[k] = v.replace('%CWD%', dir)
             args = [TerminalSelector.get()]
             args.extend(parameters)
             encoding = locale.getpreferredencoding(do_setlocale=True)
+            print dir.encode(encoding)
             subprocess.Popen(args, cwd=dir.encode(encoding))
 
         except (OSError) as (exception):
             print str(exception)
             sublime.error_message(__name__ + ': The terminal ' +
-                TerminalSelector.get() + ' was not found')
+                                  TerminalSelector.get() + ' was not found')
         except (Exception) as (exception):
             sublime.error_message(__name__ + ': ' + str(exception))
 
@@ -127,7 +131,7 @@ class OpenTerminalCommand(sublime_plugin.WindowCommand, TerminalCommand):
         if not path:
             return
 
-        if parameters == None:
+        if parameters is None:
             settings = sublime.load_settings('Terminal.sublime-settings')
             parameters = get_platform_setting(settings, 'parameters')
 
@@ -141,7 +145,7 @@ class OpenTerminalCommand(sublime_plugin.WindowCommand, TerminalCommand):
 
 
 class OpenTerminalProjectFolderCommand(sublime_plugin.WindowCommand,
-        TerminalCommand):
+                                       TerminalCommand):
     def run(self, paths=[], parameters=None):
         path = self.get_path(paths)
         if not path:
@@ -151,3 +155,18 @@ class OpenTerminalProjectFolderCommand(sublime_plugin.WindowCommand,
 
         command = OpenTerminalCommand(self.window)
         command.run(folders, parameters=parameters)
+
+
+class OpenFolderInFilemanagerCommand(sublime_plugin.WindowCommand):
+    def run(self):
+        settings = sublime.load_settings('Terminal.sublime-settings')
+        filemanager = get_platform_setting(settings, 'filemanager')
+        if not filemanager:
+            return
+        if self.window.active_view():
+            folder_name = os.path.dirname(self.window.active_view().file_name())
+        elif self.window.folders():
+            folder_name = self.window.folders()[0]
+        # I could not test this on MacOS
+        if sys.platform == "linux2" or sys.platform == "win32":
+            subprocess.Popen([filemanager, folder_name])

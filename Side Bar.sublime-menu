@@ -1,3 +1,4 @@
 [
-	{ "caption": "Open Terminal Here…", "command": "open_terminal", "args": {"paths": []} }
+	{ "caption": "Open Terminal Here…", "command": "open_terminal", "args": {"paths": []} },
+  { "caption": "Open in Explorer", "command": "open_folder_in_filemanager", "args": {} }
 ]

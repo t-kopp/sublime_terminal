@@ -1,4 +1,5 @@
 [
     { "caption": "-", "id": "file" },
-    { "command": "open_terminal", "caption": "Open Terminal Here…" }
+    { "command": "open_terminal", "caption": "Open Terminal Here…" },
+    { "command": "open_folder_in_filemanager", "caption": "Open in filemanager"}
 ]
