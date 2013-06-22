@@ -3,7 +3,6 @@ import sublime_plugin
 import os
 import sys
 import subprocess
-import locale
 
 if os.name == 'nt':
     import winreg
@@ -57,14 +56,14 @@ class TerminalSelector():
                     'WindowsPowerShell_v1.0_powershell.exe'
                 try:
                     key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                                          key_string)
+                                         key_string)
                 except (WindowsError):
                     key = winreg.CreateKey(winreg.HKEY_CURRENT_USER,
-                                            key_string)
+                                           key_string)
                     winreg.SetValueEx(key, 'ColorTable05', 0,
-                                       winreg.REG_DWORD, 5645313)
+                                      winreg.REG_DWORD, 5645313)
                     winreg.SetValueEx(key, 'ColorTable06', 0,
-                                       winreg.REG_DWORD, 15789550)
+                                      winreg.REG_DWORD, 15789550)
                 default = os.path.join(package_dir, 'PS.bat')
             else:
                 default = os.environ['SYSTEMROOT'] + '\\System32\\cmd.exe'
@@ -113,7 +112,6 @@ class TerminalCommand():
                 parameters[k] = v.replace('%CWD%', dir)
             args = [TerminalSelector.get()]
             args.extend(parameters)
-            encoding = locale.getpreferredencoding(do_setlocale=True)
             subprocess.Popen(args, cwd=dir)
 
         except (OSError) as exception:
