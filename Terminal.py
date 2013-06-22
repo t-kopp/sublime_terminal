@@ -6,7 +6,7 @@ import subprocess
 import locale
 
 if os.name == 'nt':
-    import _winreg
+    import winreg
 
 
 class NotFoundError(Exception):
@@ -56,15 +56,15 @@ class TerminalSelector():
                 key_string = 'Console\\%SystemRoot%_system32_' + \
                     'WindowsPowerShell_v1.0_powershell.exe'
                 try:
-                    key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER,
+                    key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                                           key_string)
                 except (WindowsError):
-                    key = _winreg.CreateKey(_winreg.HKEY_CURRENT_USER,
+                    key = winreg.CreateKey(winreg.HKEY_CURRENT_USER,
                                             key_string)
-                    _winreg.SetValueEx(key, 'ColorTable05', 0,
-                                       _winreg.REG_DWORD, 5645313)
-                    _winreg.SetValueEx(key, 'ColorTable06', 0,
-                                       _winreg.REG_DWORD, 15789550)
+                    winreg.SetValueEx(key, 'ColorTable05', 0,
+                                       winreg.REG_DWORD, 5645313)
+                    winreg.SetValueEx(key, 'ColorTable06', 0,
+                                       winreg.REG_DWORD, 15789550)
                 default = os.path.join(package_dir, 'PS.bat')
             else:
                 default = os.environ['SYSTEMROOT'] + '\\System32\\cmd.exe'
@@ -101,7 +101,7 @@ class TerminalCommand():
         elif self.window.folders():
             return self.window.folders()[0]
         else:
-            sublime.error_message(__name__ + ': No place to open terminal to')
+            sublime.error_message("Terminal" + ': No place to open terminal to')
             return False
 
     def run_terminal(self, dir, parameters):
@@ -114,15 +114,13 @@ class TerminalCommand():
             args = [TerminalSelector.get()]
             args.extend(parameters)
             encoding = locale.getpreferredencoding(do_setlocale=True)
-            print dir.encode(encoding)
-            subprocess.Popen(args, cwd=dir.encode(encoding))
+            subprocess.Popen(args, cwd=dir)
 
         except (OSError) as exception:
-            print exception
-            sublime.error_message(__name__ + ': The terminal ' +
+            sublime.error_message("Terminal" + ': The terminal ' +
                                   TerminalSelector.get() + ' was not found')
         except (Exception) as exception:
-            sublime.error_message(__name__ + ': ' + str(exception))
+            sublime.error_message("Terminal" + ': ' + str(exception))
 
 
 class OpenTerminalCommand(sublime_plugin.WindowCommand, TerminalCommand):
